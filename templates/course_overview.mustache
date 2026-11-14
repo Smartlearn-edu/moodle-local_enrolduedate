@@ -1,0 +1,171 @@
+{{!
+    This file is part of Moodle - https://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
+}}
+{{!
+    @template local_enrolduedate/course_overview
+
+    Course management and student schedule report for local_enrolduedate.
+
+    Example context (json):
+    {
+        "courseid": 2,
+        "canmanage": true,
+        "coursesettingsform": "",
+        "hasrules": false,
+        "rules": [],
+        "filteractionurl": "/local/enrolduedate/index.php",
+        "rulefilters": [],
+        "statusfilters": [],
+        "hasrecords": false,
+        "records": [],
+        "pagingbar": ""
+    }
+}}
+<div class="local-enrolduedate-overview">
+    {{#canmanage}}
+        <div class="mb-4">
+            {{{coursesettingsform}}}
+        </div>
+    {{/canmanage}}
+
+    <h3 class="mt-3 mb-3">{{#str}}rulestable_heading, local_enrolduedate{{/str}}</h3>
+    {{#hasrules}}
+        <div class="table-responsive mb-4">
+            <table class="generaltable table table-striped">
+                <thead>
+                    <tr>
+                        <th scope="col">{{#str}}col_activity, local_enrolduedate{{/str}}</th>
+                        <th scope="col">{{#str}}col_trigger, local_enrolduedate{{/str}}</th>
+                        <th scope="col">{{#str}}col_reference, local_enrolduedate{{/str}}</th>
+                        <th scope="col">{{#str}}col_offsets, local_enrolduedate{{/str}}</th>
+                        <th scope="col">{{#str}}col_rulestatus, local_enrolduedate{{/str}}</th>
+                        {{#canmanage}}
+                            <th scope="col">{{#str}}col_actions, local_enrolduedate{{/str}}</th>
+                        {{/canmanage}}
+                    </tr>
+                </thead>
+                <tbody>
+                    {{#rules}}
+                        <tr>
+                            <td><a href="{{editurl}}">{{activityname}}</a></td>
+                            <td>{{triggertypelabel}}</td>
+                            <td>{{referencename}}</td>
+                            <td>{{offsetslabel}}</td>
+                            <td>
+                                <span class="{{statusbadgeclass}}">{{statuslabel}}</span>
+                                {{#isbrokenref}}
+                                    <div class="text-danger small mt-1">{{#str}}brokenrefalert, local_enrolduedate{{/str}}</div>
+                                {{/isbrokenref}}
+                            </td>
+                            {{#canmanage}}
+                                <td>
+                                    <a class="btn btn-sm btn-outline-secondary mr-1 me-1" href="{{editurl}}">
+                                        {{#str}}action_edit, local_enrolduedate{{/str}}
+                                    </a>
+                                    {{#canrecalculate}}
+                                        <a class="btn btn-sm btn-outline-primary" href="{{recalculateurl}}">
+                                            {{#str}}action_recalculate, local_enrolduedate{{/str}}
+                                        </a>
+                                    {{/canrecalculate}}
+                                </td>
+                            {{/canmanage}}
+                        </tr>
+                    {{/rules}}
+                </tbody>
+            </table>
+        </div>
+    {{/hasrules}}
+    {{^hasrules}}
+        <div class="alert alert-info mb-4">{{#str}}norulesconfigured, local_enrolduedate{{/str}}</div>
+    {{/hasrules}}
+
+    <h3 class="mt-4 mb-3">{{#str}}studentstatus_heading, local_enrolduedate{{/str}}</h3>
+    <form method="get" action="{{filteractionurl}}" class="form-inline d-flex flex-wrap gap-2 mb-3">
+        <input type="hidden" name="courseid" value="{{courseid}}">
+        <div class="form-group mr-3 me-3 mb-2">
+            <label for="local-enrolduedate-filter-rule" class="mr-2 me-2">
+                {{#str}}filter_assignment, local_enrolduedate{{/str}}
+            </label>
+            <select id="local-enrolduedate-filter-rule" name="ruleid" class="custom-select form-select">
+                {{#rulefilters}}
+                    <option value="{{id}}" {{#selected}}selected{{/selected}}>{{label}}</option>
+                {{/rulefilters}}
+            </select>
+        </div>
+        <div class="form-group mr-3 me-3 mb-2">
+            <label for="local-enrolduedate-filter-status" class="mr-2 me-2">
+                {{#str}}filter_status, local_enrolduedate{{/str}}
+            </label>
+            <select id="local-enrolduedate-filter-status" name="status" class="custom-select form-select">
+                {{#statusfilters}}
+                    <option value="{{value}}" {{#selected}}selected{{/selected}}>{{label}}</option>
+                {{/statusfilters}}
+            </select>
+        </div>
+        <div class="form-group mb-2">
+            <button type="submit" class="btn btn-secondary">{{#str}}filter_apply, local_enrolduedate{{/str}}</button>
+        </div>
+    </form>
+
+    {{#hasrecords}}
+        <div class="table-responsive">
+            <table class="generaltable table table-striped">
+                <thead>
+                    <tr>
+                        <th scope="col">{{#str}}col_student, local_enrolduedate{{/str}}</th>
+                        <th scope="col">{{#str}}col_activity, local_enrolduedate{{/str}}</th>
+                        <th scope="col">{{#str}}col_anchor, local_enrolduedate{{/str}}</th>
+                        <th scope="col">{{#str}}col_open, local_enrolduedate{{/str}}</th>
+                        <th scope="col">{{#str}}col_due, local_enrolduedate{{/str}}</th>
+                        <th scope="col">{{#str}}col_cutoff, local_enrolduedate{{/str}}</th>
+                        <th scope="col">{{#str}}col_studentstatus, local_enrolduedate{{/str}}</th>
+                        {{#canmanage}}
+                            <th scope="col">{{#str}}col_actions, local_enrolduedate{{/str}}</th>
+                        {{/canmanage}}
+                    </tr>
+                </thead>
+                <tbody>
+                    {{#records}}
+                        <tr>
+                            <td>{{studentname}}</td>
+                            <td>{{activityname}}</td>
+                            <td>{{anchordate}}</td>
+                            <td>{{opendate}}</td>
+                            <td>{{duedate}}</td>
+                            <td>{{cutoffdate}}</td>
+                            <td><span class="{{statusbadgeclass}}">{{statuslabel}}</span></td>
+                            {{#canmanage}}
+                                <td>
+                                    {{#canunlock}}
+                                        <a class="btn btn-sm btn-outline-warning" href="{{unlockurl}}">
+                                            {{#str}}action_unlock, local_enrolduedate{{/str}}
+                                        </a>
+                                    {{/canunlock}}
+                                </td>
+                            {{/canmanage}}
+                        </tr>
+                    {{/records}}
+                </tbody>
+            </table>
+        </div>
+        <div class="mt-3">
+            {{{pagingbar}}}
+        </div>
+    {{/hasrecords}}
+    {{^hasrecords}}
+        <div class="alert alert-info">{{#str}}nostudentrecords, local_enrolduedate{{/str}}</div>
+    {{/hasrecords}}
+</div>

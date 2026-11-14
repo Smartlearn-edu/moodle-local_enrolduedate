@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<XMLDB PATH="local/enrolduedate/db" VERSION="20261114" COMMENT="XMLDB file for Moodle local/enrolduedate plugin"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
+>
+  <TABLES>
+    <TABLE NAME="local_enrolduedate_course" COMMENT="Course-level relative due date anchor policy.">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="courseid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Course ID."/>
+        <FIELD NAME="enrolanchormode" TYPE="char" LENGTH="30" NOTNULL="true" DEFAULT="earliest_floored" SEQUENCE="false" COMMENT="Anchor mode: earliest_floored, earliest_raw, or latest_raw."/>
+        <FIELD NAME="usermodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="User who last modified this record."/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="courseid" TYPE="foreign-unique" FIELDS="courseid" REFTABLE="course" REFFIELDS="id"/>
+        <KEY NAME="usermodified" TYPE="foreign" FIELDS="usermodified" REFTABLE="user" REFFIELDS="id"/>
+      </KEYS>
+    </TABLE>
+    <TABLE NAME="local_enrolduedate_rule" COMMENT="Per-activity relative due date rules.">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="courseid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Course ID."/>
+        <FIELD NAME="cmid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Target course module ID."/>
+        <FIELD NAME="modname" TYPE="char" LENGTH="50" NOTNULL="true" SEQUENCE="false" COMMENT="Activity module name (e.g. assign)."/>
+        <FIELD NAME="enabled" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Whether relative due date calculation is enabled."/>
+        <FIELD NAME="triggertype" TYPE="char" LENGTH="30" NOTNULL="true" DEFAULT="enrolment" SEQUENCE="false" COMMENT="Anchor trigger: enrolment, activity_completed, or activity_viewed."/>
+        <FIELD NAME="refcmid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Reference course module ID for completion or view triggers."/>
+        <FIELD NAME="restrictuntiltriggered" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="Manage availability_completion restriction until reference trigger is met."/>
+        <FIELD NAME="openoffsetvalue" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Allow submissions from offset value."/>
+        <FIELD NAME="openoffsetunit" TYPE="char" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="hours, days, or weeks."/>
+        <FIELD NAME="dueoffsetvalue" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Due date offset value."/>
+        <FIELD NAME="dueoffsetunit" TYPE="char" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="hours, days, or weeks."/>
+        <FIELD NAME="cutoffoffsetvalue" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Cut-off date offset value."/>
+        <FIELD NAME="cutoffoffsetunit" TYPE="char" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="hours, days, or weeks."/>
+        <FIELD NAME="snapmode" TYPE="char" LENGTH="20" NOTNULL="true" DEFAULT="endofday" SEQUENCE="false" COMMENT="exact or endofday."/>
+        <FIELD NAME="status" TYPE="char" LENGTH="20" NOTNULL="true" DEFAULT="active" SEQUENCE="false" COMMENT="active or broken_ref."/>
+        <FIELD NAME="usermodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="courseid" TYPE="foreign" FIELDS="courseid" REFTABLE="course" REFFIELDS="id"/>
+        <KEY NAME="cmid" TYPE="foreign-unique" FIELDS="cmid" REFTABLE="course_modules" REFFIELDS="id"/>
+        <KEY NAME="usermodified" TYPE="foreign" FIELDS="usermodified" REFTABLE="user" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="modname" UNIQUE="false" FIELDS="modname"/>
+        <INDEX NAME="refcmid" UNIQUE="false" FIELDS="refcmid"/>
+        <INDEX NAME="courseid_enabled" UNIQUE="false" FIELDS="courseid, enabled"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="local_enrolduedate_applied" COMMENT="Tracks computed student dates, plugin override IDs, locks, and notifications.">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="ruleid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="courseid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="cmid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="overrideid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Target module user override ID."/>
+        <FIELD NAME="anchortime" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Resolved immutable anchor timestamp."/>
+        <FIELD NAME="computedopen" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="computeddue" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="computedcutoff" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="manualoverride" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="1 when override is manually locked by a teacher."/>
+        <FIELD NAME="notified" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="1 when unlock notification was sent."/>
+        <FIELD NAME="status" TYPE="char" LENGTH="20" NOTNULL="true" DEFAULT="waiting" SEQUENCE="false" COMMENT="applied, waiting, manual_locked, or skipped."/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="ruleid" TYPE="foreign" FIELDS="ruleid" REFTABLE="local_enrolduedate_rule" REFFIELDS="id"/>
+        <KEY NAME="userid" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="ruleid_userid" UNIQUE="true" FIELDS="ruleid, userid"/>
+        <INDEX NAME="cmid_userid" UNIQUE="false" FIELDS="cmid, userid"/>
+        <INDEX NAME="courseid_status" UNIQUE="false" FIELDS="courseid, status"/>
+        <INDEX NAME="overrideid" UNIQUE="false" FIELDS="overrideid"/>
+      </INDEXES>
+    </TABLE>
+  </TABLES>
+</XMLDB>
